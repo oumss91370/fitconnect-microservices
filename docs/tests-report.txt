@@ -1,0 +1,22 @@
+# ./mvnw clean test  (30/09/2026) : 30 tests, 0 échec
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.185 s -- in com.fitconnect.classservice.model.FitnessClassTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.76 s -- in com.fitconnect.classservice.web.FitnessClassControllerIntegrationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.073 s -- in com.fitconnect.classservice.service.OptimisticLockingIntegrationTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.40 s -- in com.fitconnect.booking.integration.BookingFlowIntegrationTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.657 s -- in com.fitconnect.booking.service.BookingServiceTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.54 s -- in com.fitconnect.payment.PaymentControllerIntegrationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.06 s -- in com.fitconnect.notification.NotificationControllerIntegrationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Reactor Summary for FitConnect - plateforme de réservation de cours de sport 1.0.0:
+[INFO] FitConnect - plateforme de réservation de cours de sport SUCCESS [  0.167 s]
+[INFO] eureka-server ...................................... SUCCESS [  2.865 s]
+[INFO] config-server ...................................... SUCCESS [  0.704 s]
+[INFO] api-gateway ........................................ SUCCESS [  0.698 s]
+[INFO] class-service ...................................... SUCCESS [ 18.772 s]
+[INFO] booking-service .................................... SUCCESS [ 16.472 s]
+[INFO] payment-service .................................... SUCCESS [ 13.520 s]
+[INFO] notification-service ............................... SUCCESS [ 13.269 s]
+[INFO] BUILD SUCCESS

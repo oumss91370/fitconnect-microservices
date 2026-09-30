@@ -1,0 +1,33 @@
+# Configuration de test : ni config-server ni Eureka, base H2 dédiée
+spring:
+  application:
+    name: booking-service
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+    discovery:
+      enabled: false
+    openfeign:
+      circuitbreaker:
+        enabled: false
+  datasource:
+    url: jdbc:h2:mem:bookingtest;DB_CLOSE_DELAY=-1
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+
+eureka:
+  client:
+    enabled: false
+
+fitconnect:
+  booking:
+    payment-timeout: PT1H
+    cancellation-notice: PT24H
+    reminder-before: PT24H
+    demo-endpoints-enabled: true
+  scheduler:
+    initial-delay: PT1H   # le scheduler est déclenché à la main dans les tests

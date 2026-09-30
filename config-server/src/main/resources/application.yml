@@ -1,0 +1,21 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          # Dossier config-repo à la racine du projet (lancement depuis la racine ou depuis le module)
+          search-locations: ${CONFIG_REPO_PATH:file:./config-repo/,file:../config-repo/}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

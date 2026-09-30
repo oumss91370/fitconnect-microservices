@@ -1,0 +1,13 @@
+server:
+  port: 8091
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:classdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+
+fitconnect:
+  class:
+    # nombre de tentatives en cas de conflit de version (verrouillage optimiste)
+    optimistic-lock-retries: 10

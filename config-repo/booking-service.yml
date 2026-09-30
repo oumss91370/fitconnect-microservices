@@ -1,0 +1,48 @@
+server:
+  port: 8092
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:bookingdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+        alphanumeric-ids:
+          enabled: true
+      client:
+        config:
+          default:
+            connect-timeout: 2000
+            read-timeout: 5000
+
+fitconnect:
+  booking:
+    payment-timeout: PT1H          # paymentDeadline = bookingDate + 1 heure
+    cancellation-notice: PT24H     # cancellationDeadline = classDate - 24 heures
+    reminder-before: PT24H         # rappel envoyé 24 h avant le cours
+    demo-endpoints-enabled: true   # PATCH /api/bookings/{id}/simulate-expiration (scénario Postman)
+  scheduler:
+    expiration-rate: PT5M          # expiration des paiements en attente toutes les 5 minutes
+    reminder-rate: PT5M
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        register-health-indicator: true
+        # les erreurs métier 4xx (409, 404...) ne doivent pas ouvrir le circuit
+        ignore-exceptions:
+          - feign.FeignException$FeignClientException
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 6s

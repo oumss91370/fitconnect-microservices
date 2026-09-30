@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          routes:
+            - id: class-service
+              uri: lb://class-service
+              predicates:
+                - Path=/api/classes, /api/classes/**
+            - id: booking-service
+              uri: lb://booking-service
+              predicates:
+                - Path=/api/bookings, /api/bookings/**
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/payments, /api/payments/**
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications, /api/notifications/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway

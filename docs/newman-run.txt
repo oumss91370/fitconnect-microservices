@@ -1,0 +1,221 @@
+newman
+
+FitConnect - Microservices (via API Gateway)
+
+❏ 1. Gestion des cours
+↳ Créer un cours
+  POST http://localhost:8080/api/classes [201 Created, 524B, 728ms]
+  ✓  HTTP 201
+  ✓  cours SCHEDULED, 0 participant, 10 places
+
+↳ Lister les cours (pagination)
+  GET http://localhost:8080/api/classes?page=0&size=10&sort=dateTime,asc [200 OK, 550B, 239ms]
+  ✓  HTTP 200
+  ✓  page paginée contenant le cours créé
+
+↳ Filtrer : YOGA / INTERMEDIATE
+  GET http://localhost:8080/api/classes?category=YOGA&level=INTERMEDIATE [200 OK, 550B, 50ms]
+  ✓  HTTP 200
+  ✓  tous les résultats sont YOGA / INTERMEDIATE
+
+↳ Détails d'un cours
+  GET http://localhost:8080/api/classes/1 [200 OK, 473B, 40ms]
+  ✓  HTTP 200
+  ✓  bon cours
+
+↳ Recherche (location + instructor)
+  GET http://localhost:8080/api/classes/search?location=Paris&instructor=Marie [200 OK, 550B, 43ms]
+  ✓  HTTP 200
+  ✓  le cours est trouvé
+
+↳ Créer un cours invalide (400)
+  POST http://localhost:8080/api/classes [400 Bad Request, 534B, 34ms]
+  ✓  HTTP 400
+  ✓  détail des champs invalides
+
+❏ 2. Réservation
+↳ Réserver 2 places
+  POST http://localhost:8080/api/bookings [201 Created, 699B, 1601ms]
+  ✓  HTTP 201
+  ✓  PENDING_PAYMENT, référence BK-XXXXX, total = 2 x 15 €
+
+↳ Vérifier status PENDING_PAYMENT
+  GET http://localhost:8080/api/bookings/1 [200 OK, 640B, 54ms]
+  ✓  HTTP 200
+  ✓  status PENDING_PAYMENT
+
+↳ Vérifier les places réservées
+  GET http://localhost:8080/api/classes/1 [200 OK, 472B, 36ms]
+  ✓  HTTP 200
+  ✓  2 participants / 8 places restantes
+
+❏ 3. Paiement
+↳ Payer (carte valide)
+  PATCH http://localhost:8080/api/bookings/1/confirm [200 OK, 643B, 916ms]
+  ✓  HTTP 200
+  ✓  réservation CONFIRMED avec référence de paiement
+
+↳ Vérifier status CONFIRMED
+  GET http://localhost:8080/api/bookings/1 [200 OK, 643B, 25ms]
+  ✓  HTTP 200
+  ✓  status CONFIRMED
+
+↳ Vérifier le paiement SUCCESS
+  GET http://localhost:8080/api/payments/booking/1 [200 OK, 407B, 138ms]
+  ✓  HTTP 200
+  ✓  paiement SUCCESS de 30 €
+
+↳ Vérifier les notifications
+  GET http://localhost:8080/api/notifications/user/1 [200 OK, 957B, 268ms]
+  ✓  HTTP 200
+  ✓  BOOKING_CONFIRMATION et PAYMENT_CONFIRMATION envoyées
+
+❏ 4. Annulation (dans les délais)
+↳ Annuler
+  PATCH http://localhost:8080/api/bookings/1/cancel [200 OK, 681B, 205ms]
+  ✓  HTTP 200
+  ✓  status CANCELLED (USER_REQUEST), paiement REFUNDED
+
+↳ Vérifier le remboursement
+  GET http://localhost:8080/api/payments/booking/1 [200 OK, 432B, 20ms]
+  ✓  HTTP 200
+  ✓  paiement REFUNDED
+
+↳ Vérifier les places libérées
+  GET http://localhost:8080/api/classes/1 [200 OK, 473B, 20ms]
+  ✓  HTTP 200
+  ✓  0 participant / 10 places
+
+↳ Vérifier la notification d'annulation
+  GET http://localhost:8080/api/notifications/user/1 [200 OK, 1.33kB, 18ms]
+  ✓  HTTP 200
+  ✓  BOOKING_CANCELLED envoyée
+
+❏ 5. Scénarios d'erreur
+↳ [préparation] Cours de 5 places
+  POST http://localhost:8080/api/classes [201 Created, 529B, 33ms]
+  ✓  HTTP 201
+
+↳ [préparation] Réserver 4 places sur 5
+  POST http://localhost:8080/api/bookings [201 Created, 707B, 95ms]
+  ✓  HTTP 201
+
+↳ Surréservation (plus de places) -> 409
+  POST http://localhost:8080/api/bookings [409 Conflict, 307B, 38ms]
+  ✓  HTTP 409
+  ✓  message : plus de places
+
+↳ [préparation] Réservation à laisser expirer
+  POST http://localhost:8080/api/bookings [201 Created, 702B, 107ms]
+  ✓  HTTP 201
+
+↳ [préparation] Forcer l'expiration du délai (endpoint de démo)
+  PATCH http://localhost:8080/api/bookings/3/simulate-expiration [200 OK, 646B, 25ms]
+  ✓  HTTP 200
+  ✓  paymentDeadline dans le passé
+
+↳ Paiement expiré -> 409
+  PATCH http://localhost:8080/api/bookings/3/confirm [409 Conflict, 395B, 72ms]
+  ✓  HTTP 409
+  ✓  message : paiement expiré
+
+↳ Réservation expirée annulée
+  GET http://localhost:8080/api/bookings/3 [200 OK, 674B, 25ms]
+  ✓  HTTP 200
+  ✓  CANCELLED (PAYMENT_TIMEOUT)
+
+↳ [préparation] Cours dans 3 heures
+  POST http://localhost:8080/api/classes [201 Created, 522B, 23ms]
+  ✓  HTTP 201
+
+↳ [préparation] Réserver le cours de dans 3 heures
+  POST http://localhost:8080/api/bookings [201 Created, 704B, 85ms]
+  ✓  HTTP 201
+
+↳ Annulation hors délais -> 409
+  PATCH http://localhost:8080/api/bookings/4/cancel [409 Conflict, 353B, 26ms]
+  ✓  HTTP 409
+  ✓  message : annulation non autorisée
+
+↳ [préparation] Cours premium à 60 €
+  POST http://localhost:8080/api/classes [201 Created, 524B, 21ms]
+  ✓  HTTP 201
+
+↳ [préparation] Réserver 2 places (120 €)
+  POST http://localhost:8080/api/bookings [201 Created, 705B, 82ms]
+  ✓  HTTP 201
+
+↳ Paiement refusé (>= 100 €) -> réservation annulée (compensation)
+  PATCH http://localhost:8080/api/bookings/5/confirm [200 OK, 687B, 108ms]
+  ✓  HTTP 200
+  ✓  CANCELLED (PAYMENT_FAILED), paiement FAILED
+
+↳ Paiement FAILED enregistré
+  GET http://localhost:8080/api/payments/booking/5 [200 OK, 466B, 34ms]
+  ✓  HTTP 200
+  ✓  status FAILED, montant 120 €
+
+↳ Places du cours premium libérées
+  GET http://localhost:8080/api/classes/4 [200 OK, 475B, 26ms]
+  ✓  HTTP 200
+  ✓  0 participant après compensation
+
+↳ Paiement carte sans cardLastFour -> 400
+  PATCH http://localhost:8080/api/bookings/5/confirm [400 Bad Request, 357B, 37ms]
+  ✓  HTTP 400
+  ✓  détail cardInfoPresent
+
+↳ Cours inexistant -> 404
+  POST http://localhost:8080/api/bookings [404 Not Found, 261B, 59ms]
+  ✓  HTTP 404
+
+❏ 6. Scheduler et consultation
+↳ [préparation] Réservation en attente
+  POST http://localhost:8080/api/bookings [201 Created, 705B, 81ms]
+  ✓  HTTP 201
+
+↳ [préparation] Forcer l'expiration
+  PATCH http://localhost:8080/api/bookings/6/simulate-expiration [200 OK, 649B, 21ms]
+  ✓  HTTP 200
+
+↳ Réservations expirées (pour le scheduler)
+  GET http://localhost:8080/api/bookings/expired [200 OK, 648B, 25ms]
+  ✓  HTTP 200
+  ✓  la réservation apparaît
+
+↳ Lancer le traitement d'expiration maintenant
+  POST http://localhost:8080/api/bookings/expired/cancel [200 OK, 682B, 64ms]
+  ✓  HTTP 200
+  ✓  réservation annulée par le job
+
+↳ Réservations d'un utilisateur
+  GET http://localhost:8080/api/bookings/user/2 [200 OK, 650B, 24ms]
+  ✓  HTTP 200
+
+↳ Historique des paiements d'un utilisateur
+  GET http://localhost:8080/api/payments/user/1 [200 OK, 434B, 19ms]
+  ✓  HTTP 200
+
+↳ Notifications en attente / en échec
+  GET http://localhost:8080/api/notifications/pending [200 OK, 118B, 34ms]
+  ✓  HTTP 200
+
+┌─────────────────────────┬─────────────────────┬────────────────────┐
+│                         │            executed │             failed │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              iterations │                   1 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│                requests │                  41 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│            test-scripts │                  41 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│      prerequest-scripts │                   4 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              assertions │                  69 │                  0 │
+├─────────────────────────┴─────────────────────┴────────────────────┤
+│ total run duration: 6.4s                                           │
+├────────────────────────────────────────────────────────────────────┤
+│ total data received: 18.14kB (approx)                              │
+├────────────────────────────────────────────────────────────────────┤
+│ average response time: 136ms [min: 18ms, max: 1601ms, s.d.: 289ms] │
+└────────────────────────────────────────────────────────────────────┘

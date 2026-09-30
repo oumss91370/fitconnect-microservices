@@ -1,0 +1,13 @@
+server:
+  port: 8094
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:notificationdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+
+fitconnect:
+  notification:
+    # simulation : un destinataire contenant ce mot provoque un échec d'envoi (FAILED)
+    failing-recipient-keyword: fail

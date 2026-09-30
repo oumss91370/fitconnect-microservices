@@ -1,0 +1,16 @@
+FitConnect - TP Microservices (Omar)
+
+Dépôt GitHub : https://github.com/oumss91370/fitconnect-microservices (projet Maven multi-modules, Java 21, Spring Boot 3.5 / Spring Cloud 2025.0). Tout est détaillé dans le README.
+
+Contenu :
+- 4 microservices : class-service :8091, booking-service :8092, payment-service :8093, notification-service :8094 (H2 par service)
+- Infrastructure : eureka-server, config-server (config-repo : application.yml + 5 fichiers de service), api-gateway (4 routes lb:// dans config-repo/api-gateway.yml)
+- Saga "Reserve Now, Pay Later" orchestrée par booking-service : réservation, paiement, confirmation et annulation, avec compensations (places libérées si le paiement est refusé ou si l'enregistrement échoue, remboursement si la réservation change pendant le paiement)
+- Clients Feign avec circuit breaker Resilience4j : les erreurs métier 4xx sont retransmises, les pannes donnent un 503
+- Verrouillage optimiste (@Version) dans class-service, avec nouvelle tentative : 12 réservations concurrentes sur 30 places, exactement 6 passent
+- Scheduler : expiration des paiements en attente toutes les 5 min et rappel 24 h avant le cours
+- Tests : 30 tests JUnit / Mockito / MockMvc, tous verts, dont les 5 tests demandés
+- Collection Postman : 41 requêtes et 69 assertions, exécutées avec Newman sur la stack complète via la gateway, 0 échec (docs/newman-run.txt)
+- Bonus : docker-compose.yml (7 conteneurs avec healthchecks), testé avec la même collection Postman (docs/newman-run-docker.txt)
+
+Lancement : ./mvnw clean package, puis ./start-all.sh (ou .\start-all.ps1 sous Windows, ou docker compose up --build)

@@ -1,0 +1,13 @@
+server:
+  port: 8093
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:paymentdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+
+fitconnect:
+  payment:
+    # simulation : montant < 100 € accepté, >= 100 € refusé
+    max-accepted-amount: "100.00"

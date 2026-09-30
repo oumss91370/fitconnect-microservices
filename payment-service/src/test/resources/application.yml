@@ -1,0 +1,21 @@
+# Configuration de test : ni config-server ni Eureka, base H2 dédiée
+spring:
+  application:
+    name: payment-service
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+    discovery:
+      enabled: false
+  datasource:
+    url: jdbc:h2:mem:paymenttest;DB_CLOSE_DELAY=-1
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+
+eureka:
+  client:
+    enabled: false

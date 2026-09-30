@@ -1,0 +1,87 @@
+# FitConnect - 3 services d'infrastructure + 4 microservices métier
+# Pré-requis : mvn clean package -DskipTests   puis   docker compose up --build
+name: fitconnect
+
+x-healthcheck: &healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 30
+  start_period: 20s
+
+x-business-env: &business-env
+  EUREKA_URL: http://eureka-server:8761/eureka
+  CONFIG_SERVER_URL: http://config-server:8888
+
+services:
+  eureka-server:
+    build: ./eureka-server
+    ports: ["8761:8761"]
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health | grep -q UP"]
+
+  config-server:
+    build: ./config-server
+    ports: ["8888:8888"]
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      CONFIG_REPO_PATH: file:/config-repo/
+    volumes:
+      - ./config-repo:/config-repo:ro
+    depends_on:
+      eureka-server: { condition: service_healthy }
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health | grep -q UP"]
+
+  class-service:
+    build: ./class-service
+    ports: ["8091:8091"]
+    environment: *business-env
+    depends_on:
+      config-server: { condition: service_healthy }
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8091/actuator/health | grep -q UP"]
+
+  payment-service:
+    build: ./payment-service
+    ports: ["8093:8093"]
+    environment: *business-env
+    depends_on:
+      config-server: { condition: service_healthy }
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8093/actuator/health | grep -q UP"]
+
+  notification-service:
+    build: ./notification-service
+    ports: ["8094:8094"]
+    environment: *business-env
+    depends_on:
+      config-server: { condition: service_healthy }
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8094/actuator/health | grep -q UP"]
+
+  booking-service:
+    build: ./booking-service
+    ports: ["8092:8092"]
+    environment: *business-env
+    depends_on:
+      class-service: { condition: service_healthy }
+      payment-service: { condition: service_healthy }
+      notification-service: { condition: service_healthy }
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8092/actuator/health | grep -q UP"]
+
+  api-gateway:
+    build: ./api-gateway
+    ports: ["8080:8080"]
+    environment: *business-env
+    depends_on:
+      booking-service: { condition: service_healthy }
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]

@@ -1,0 +1,8 @@
+# Scheduler booking-service : exécution automatique (thread scheduling-1, toutes les 5 min)
+# 13:12:01 réservation BK-KL6NM créée puis délai de paiement forcé dans le passé (simulate-expiration)
+2026-09-30T13:16:34.038+02:00  INFO[   scheduling-1] c.f.booking.service.BookingService       : Réservation BK-KL6NM expirée et annulée
+2026-09-30T13:16:34.038+02:00  INFO[   scheduling-1] c.f.booking.scheduler.BookingScheduler   : [Scheduler] 1 réservation(s) expirée(s) annulée(s) : [BK-KL6NM]
+
+# notification-service : emails simulés pour cette réservation
+[EMAIL] à=auto@example.com | sujet="Réservation BK-KL6NM en attente de paiement" | Bonjour Auto Expire, votre réservation de 1 place(s) pour "Yoga Vinyasa" du 07/10/2026 à 13:11 est en attente de paiement (15.00 €). Payez avant le 30/09/2026 à 14:12.
+[EMAIL] à=auto@example.com | sujet="Réservation BK-KL6NM annulée" | Bonjour Auto Expire, votre réservation pour "Yoga Vinyasa" du 07/10/2026 à 13:11 a été annulée : paiement non reçu avant le 2026-09-30T13:11:00.995085.
